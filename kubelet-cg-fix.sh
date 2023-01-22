@@ -4,6 +4,27 @@
 trap "{ echo 'Terminated with Ctrl+C'; exit 143; }" SIGINT
 trap "{ echo 'Terminated with SIGKILL'; exit 137; }" SIGKILL
 
+# Usage function
+usage() { echo "Usage: $0 [-r MEMORY_RESERVED_RATIO]"; exit 1; }
+
+# Flags parsing
+while getopts ":hr:" flag
+do
+    case "${flag}" in
+        r) MEMORY_RESERVED_RATIO=${OPTARG}
+           ;;
+        h) usage
+           ;;
+        *) usage
+           ;;
+    esac
+done
+
+# Set MEMORY_RESERVED_RATIO to 20 if no custom argument is passed by user
+if [ -z $MEMORY_RESERVED_RATIO ]; then
+    MEMORY_RESERVED_RATIO=20
+fi
+
 # System constants
 KUBEPODS_SLICE="kubepods.slice"
 SYSTEMD_SLICE_MEM_CFG="/run/systemd/system/kubepods.slice.d/50-MemoryLimit.conf"
@@ -17,8 +38,8 @@ done
 # Memory allocation variables
 SYS_TOTAL_MEMORY=$(($(grep MemTotal /proc/meminfo | awk '{ print $2 }') * 1024))
 # TODO: Make this variable dynamic from kubelet and system reserved memory extracted informations
-# Currently we override using a pattern based on the 20% of the overall memory
-RESERVED_MEMORY=$((SYS_TOTAL_MEMORY / 100 * 20))
+# Currently we override using a pattern based on the 20% of the overall memory or custom value passed by cmdline
+RESERVED_MEMORY=$((SYS_TOTAL_MEMORY / 100 * ${MEMORY_RESERVED_RATIO}))
 EXPECTED_MEMORY_LIMIT_BYTES=$((${SYS_TOTAL_MEMORY} - ${RESERVED_MEMORY}))
 
 # Main reconcile loop

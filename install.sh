@@ -5,7 +5,7 @@ UNIT_NAME=kubelet-cg-fix.service
 SYSTEMD_PATH=/etc/systemd/system/
 
 # Ensure /usr/local/bin exists
-if [ -d /usr/local/bin ]; then
+if [ ! -d /usr/local/bin ]; then
     mkdir /usr/local/bin
 fi
 

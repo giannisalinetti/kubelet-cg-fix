@@ -2,7 +2,7 @@
 Description=Fix kubelet memory CGroups limits
 
 [Service]
-ExecStart=/usr/local/bin/kubelet-cg-fix.sh
+ExecStart=/usr/local/bin/kubelet-cg-fix.sh -r 20
 
 [Install]
 WantedBy=multi-user.target
