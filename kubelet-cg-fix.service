@@ -1,0 +1,9 @@
+[Unit]
+Description=Fix kubelet memory CGroups limits
+
+[Service]
+ExecStart=/usr/local/bin/kubelet-cg-fix.sh
+
+[Install]
+WantedBy=multi-user.target
+

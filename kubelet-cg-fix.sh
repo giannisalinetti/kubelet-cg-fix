@@ -1,17 +1,24 @@
 #!/bin/bash
 
-# System constants
-KUBEPODS_SLICE="kubepods.slice"
-SYSTEMD_SLICE_MEM_CFG="/run/systemd/system/kubepods.slice.d/50-MemoryLimit.conf"
-
 # Signal trap section
 trap "{ echo 'Terminated with Ctrl+C'; exit 143; }" SIGINT
 trap "{ echo 'Terminated with SIGKILL'; exit 137; }" SIGKILL
 
+# System constants
+KUBEPODS_SLICE="kubepods.slice"
+SYSTEMD_SLICE_MEM_CFG="/run/systemd/system/kubepods.slice.d/50-MemoryLimit.conf"
+
+# Wait for kubepods.slice to become active
+echo "$(date) - Waiting for kubepods.slice to become active"
+while ! systemctl is-active ${KUBEPODS_SLICE} > /dev/null; do
+    sleep 5
+done
+    
 # Memory allocation variables
 SYS_TOTAL_MEMORY=$(($(grep MemTotal /proc/meminfo | awk '{ print $2 }') * 1024))
-# TODO: Make this variable dynamic from kubelet and system reserved memory info
-RESERVED_MEMORY=999999999
+# TODO: Make this variable dynamic from kubelet and system reserved memory extracted informations
+# Currently we override using a pattern based on the 20% of the overall memory
+RESERVED_MEMORY=$((SYS_TOTAL_MEMORY / 100 * 20))
 EXPECTED_MEMORY_LIMIT_BYTES=$((${SYS_TOTAL_MEMORY} - ${RESERVED_MEMORY}))
 
 # Main reconcile loop
