@@ -20,11 +20,6 @@ do
     esac
 done
 
-# Set MEMORY_RESERVED_RATIO to 20 if no custom argument is passed by user
-if [ -z $MEMORY_RESERVED_RATIO ]; then
-    MEMORY_RESERVED_RATIO=20
-fi
-
 # System constants
 KUBEPODS_SLICE="kubepods.slice"
 SYSTEMD_SLICE_MEM_CFG="/run/systemd/system/kubepods.slice.d/50-MemoryLimit.conf"
@@ -41,6 +36,11 @@ SYS_TOTAL_MEMORY=$(($(grep MemTotal /proc/meminfo | awk '{ print $2 }') * 1024))
 # Currently we override using a pattern based on the 20% of the overall memory or custom value passed by cmdline
 RESERVED_MEMORY=$((SYS_TOTAL_MEMORY / 100 * ${MEMORY_RESERVED_RATIO}))
 EXPECTED_MEMORY_LIMIT_BYTES=$((${SYS_TOTAL_MEMORY} - ${RESERVED_MEMORY}))
+
+# Set MEMORY_RESERVED_RATIO to 20 if no custom argument is passed by user
+if [ -z $MEMORY_RESERVED_RATIO ]; then
+    MEMORY_RESERVED_RATIO=20
+fi
 
 # Main reconcile loop
 echo "Starting kubepods.slice memory reconcile loop"
