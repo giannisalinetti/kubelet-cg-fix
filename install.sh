@@ -27,3 +27,12 @@ if [ $? -ne 0 ]; then
     echo "$(date) - Error starting ${UNIT_NAME} systemd service"
     exit 1
 fi
+
+# Wait until service is active
+while ! systemctl is-active ${UNIT_NAME} > /dev/null
+do
+    sleep 1
+done
+
+exit 0
+
