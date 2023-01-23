@@ -21,6 +21,8 @@ $ cd kubelet-cg-fix
 $ sudo ./install.sh
 ```
 
+It is possible to customize the memory reserved ratio in the installed systemd unit by editing the `CUSTOM_RESERVED_RATIO` variable in the install script.
+
 ## Monitor status
 The scripts tracks and logs the changes on the memory limit of kubepods.slice. To view the status:
 ```
